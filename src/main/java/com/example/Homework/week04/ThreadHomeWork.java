@@ -3,6 +3,7 @@ package com.example.Homework.week04;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * 本周作业：（必做）思考有多少种方式，在main函数启动一个新线程或线程池，
@@ -14,27 +15,20 @@ import java.util.concurrent.Executors;
 public class ThreadHomeWork {
 
     public static void main(String[] args) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("start:" + System.currentTimeMillis());
-                    int res = sum();
-                    System.out.println("res = " + res);
-                    Thread.sleep(1000L);
-                    System.out.println("end:" + System.currentTimeMillis());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        executorService.execute(runnable);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        try {
+            Future<Integer> future = executorService.submit(() -> {
+                throw new RuntimeException("executorService.submit()");
+            });
+            int b = sum();
+            System.out.println(b);
+        } catch (Exception ex) {
+            System.out.println("catch submit");
+            ex.printStackTrace();
+        }
         executorService.shutdown();
         System.out.println("Main Thread End!");
-
     }
-
 
     private static int sum() {
         return fibo(36);
