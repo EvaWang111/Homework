@@ -13,21 +13,27 @@ import java.util.concurrent.Future;
  * 一个简单的代码参考：
  */
 public class ThreadHomeWork {
+    private final static int threadCount = 1;
 
-    public static void main(String[] args) {
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        try {
-            Future<Integer> future = executorService.submit(() -> {
-                throw new RuntimeException("executorService.submit()");
-            });
-            int b = sum();
-            System.out.println(b);
-        } catch (Exception ex) {
-            System.out.println("catch submit");
-            ex.printStackTrace();
-        }
-        executorService.shutdown();
-        System.out.println("Main Thread End!");
+    public static void main(String[] args) throws InterruptedException {
+        ExecutorService exec = Executors.newCachedThreadPool();//创建线程池
+        final CountDownLatch countDownLatch = new CountDownLatch(threadCount);//并发工具
+        //  for (int i = 0; i < threadCount; i++) {
+        //   final int threadNum = i;
+        exec.execute(() -> {
+            try {
+                int res = sum();
+                System.out.println("res = " + res);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                countDownLatch.countDown();
+            }
+        });
+        //  }
+        countDownLatch.await();
+        System.out.println("==>主线程退出 ！");
+        exec.shutdown();
     }
 
     private static int sum() {
